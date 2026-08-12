@@ -17,6 +17,10 @@ PL::Adxl355 adxl355(spi, sclkFrequency, csPin);
 void TestDeviceId();
 void TestGetNumberOfFifoSamples();
 void TestReadAccelerationsFromFifo();
+void TestStatus();
+void TestClearFifo();
+void TestReadAccelerations();
+void TestTemperature();
 void TestOffsets();
 void TestActivityDetectionAxes();
 void TestActivityThreshold();
@@ -41,6 +45,10 @@ extern "C" void app_main(void) {
   RUN_TEST(TestDeviceId);
   RUN_TEST(TestGetNumberOfFifoSamples);
   RUN_TEST(TestReadAccelerationsFromFifo);
+  RUN_TEST(TestStatus);
+  RUN_TEST(TestClearFifo);
+  RUN_TEST(TestReadAccelerations);
+  RUN_TEST(TestTemperature);
   RUN_TEST(TestOffsets);
   RUN_TEST(TestActivityDetectionAxes);
   RUN_TEST(TestActivityThreshold);
@@ -95,6 +103,69 @@ void TestReadAccelerationsFromFifo() {
   TEST_ASSERT(adxl355.ClearFifo() == ESP_OK);
   TEST_ASSERT(adxl355.ReadRawAccelerationsFromFifo(rawAccelerations, 100 / portTICK_PERIOD_MS) == ESP_FAIL);
   TEST_ASSERT(adxl355.ReadAccelerationsFromFifo(accelerations, 100 / portTICK_PERIOD_MS) == ESP_FAIL);
+}
+
+//==============================================================================
+
+void TestStatus() {
+  TEST_ASSERT(adxl355.Reset() == ESP_OK);
+  TEST_ASSERT(adxl355.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) == ESP_OK);
+  TEST_ASSERT(adxl355.EnableMeasurement() == ESP_OK);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
+
+  PL::Adxl355_Status status;
+  TEST_ASSERT(adxl355.ReadStatus(status) == ESP_OK);
+  TEST_ASSERT((status & PL::Adxl355_Status::dataReady) == PL::Adxl355_Status::dataReady);
+  TEST_ASSERT((status & PL::Adxl355_Status::fifoFull) == PL::Adxl355_Status::fifoFull);
+}
+
+//==============================================================================
+
+void TestClearFifo() {
+  TEST_ASSERT(adxl355.Reset() == ESP_OK);
+  TEST_ASSERT(adxl355.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) == ESP_OK);
+  TEST_ASSERT(adxl355.EnableMeasurement() == ESP_OK);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
+
+  uint8_t numberOfFifoSamples;
+  TEST_ASSERT(adxl355.ReadNumberOfFifoSamples(numberOfFifoSamples) == ESP_OK);
+  TEST_ASSERT_EQUAL(PL::Adxl355::maxNumberOfFifoSamples, numberOfFifoSamples);
+
+  TEST_ASSERT(adxl355.DisableMeasurement() == ESP_OK);
+  TEST_ASSERT(adxl355.ClearFifo() == ESP_OK);
+  TEST_ASSERT(adxl355.ReadNumberOfFifoSamples(numberOfFifoSamples) == ESP_OK);
+  TEST_ASSERT_EQUAL(0, numberOfFifoSamples);
+}
+
+//==============================================================================
+
+void TestReadAccelerations() {
+  TEST_ASSERT(adxl355.Reset() == ESP_OK);
+  TEST_ASSERT(adxl355.SetRange(PL::Adxl355_Range::range2g) == ESP_OK);
+  TEST_ASSERT(adxl355.EnableMeasurement() == ESP_OK);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
+
+  PL::Adxl355_RawAccelerations rawAccelerations;
+  TEST_ASSERT(adxl355.ReadRawAccelerations(rawAccelerations) == ESP_OK);
+  PL::Adxl355_Accelerations accelerations;
+  TEST_ASSERT(adxl355.ReadAccelerations(accelerations) == ESP_OK);
+
+  float magnitude = sqrtf(accelerations.x * accelerations.x + accelerations.y * accelerations.y + accelerations.z * accelerations.z);
+  TEST_ASSERT_FLOAT_WITHIN(0.5, 1.0, magnitude);
+}
+
+//==============================================================================
+
+void TestTemperature() {
+  TEST_ASSERT(adxl355.Reset() == ESP_OK);
+  TEST_ASSERT(adxl355.EnableMeasurement() == ESP_OK);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
+
+  uint16_t rawTemperature;
+  TEST_ASSERT(adxl355.ReadRawTemperature(rawTemperature) == ESP_OK);
+  float temperature;
+  TEST_ASSERT(adxl355.ReadTemperature(temperature) == ESP_OK);
+  TEST_ASSERT_FLOAT_WITHIN(25, 25, temperature);
 }
 
 //==============================================================================
@@ -320,6 +391,11 @@ void TestSelfTest() {
 
   PL::Adxl355_Accelerations accelerations;
   TEST_ASSERT(adxl355.SelfTest(accelerations) == ESP_OK);
+
+  // Expected self-test output according to the datasheet: 0.1...0.6 g for X and Y, 0.5...3.0 g for Z
+  TEST_ASSERT_FLOAT_WITHIN(0.25, 0.35, accelerations.x);
+  TEST_ASSERT_FLOAT_WITHIN(0.25, 0.35, accelerations.y);
+  TEST_ASSERT_FLOAT_WITHIN(1.25, 1.75, accelerations.z);
 
   PL::Adxl355_Range rangeSet;
   TEST_ASSERT(adxl355.ReadRange(rangeSet) == ESP_OK);
