@@ -735,7 +735,6 @@ esp_err_t Adxl355::SelfTest(Adxl355_Accelerations& accelerations) {
 
   ESP_RETURN_ON_ERROR(SetRange(Adxl355_Range::range8g), TAG, "set range failed");
   ESP_RETURN_ON_ERROR(DisableMeasurement(), TAG, "disable measurement failed");
-  ESP_RETURN_ON_ERROR(ReadAccelerations(accelNoForce), TAG, "read accelerations failed");
 
   ESP_RETURN_ON_ERROR(Write(ADXL355_REG_SELF_TEST, ADXL355_REG_SELF_TEST_ST1), TAG, "write failed");
   vTaskDelay(2);

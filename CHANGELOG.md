@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Timeout parameter to ReadRawAccelerationsFromFifo and ReadAccelerationsFromFifo.
 - Tests for ReadStatus, ClearFifo, ReadAccelerations, ReadTemperature and SelfTest output values.
 
+### Removed
+- Redundant standby-mode acceleration read in SelfTest.
+
 ### Fixed
 - SelfTest not restoring the acceleration range.
 - SelfTest not clearing the FIFO.
