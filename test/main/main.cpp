@@ -92,7 +92,7 @@ void TestReadAccelerationsFromFifo() {
   TEST_ASSERT(adxl355.Reset() == ESP_OK);
   TEST_ASSERT(adxl355.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) == ESP_OK);
   TEST_ASSERT(adxl355.EnableMeasurement() == ESP_OK);
-  vTaskDelay(50 / portTICK_PERIOD_MS);
+  vTaskDelay(10 / portTICK_PERIOD_MS);
 
   PL::Adxl355_RawAccelerations rawAccelerations;
   TEST_ASSERT(adxl355.ReadRawAccelerationsFromFifo(rawAccelerations, 100 / portTICK_PERIOD_MS) == ESP_OK);

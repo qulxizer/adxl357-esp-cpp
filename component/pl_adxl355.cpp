@@ -247,11 +247,17 @@ esp_err_t Adxl355::ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAcc
   ESP_RETURN_ON_FALSE(numberOfFifoSamples >= 2, ESP_ERR_TIMEOUT, TAG, "timeout");
 
   ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
+  if (data[2] & 0x01) {
+    ESP_RETURN_ON_ERROR(ESP_FAIL, TAG, "no valid Y-axis acceleration data in FIFO");
+  }
   ((uint8_t*)&rawAccelerations.y)[1] = data[2];
   ((uint8_t*)&rawAccelerations.y)[2] = data[1];
   ((uint8_t*)&rawAccelerations.y)[3] = data[0];
-  
+
   ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
+  if (data[2] & 0x01) {
+    ESP_RETURN_ON_ERROR(ESP_FAIL, TAG, "no valid Z-axis acceleration data in FIFO");
+  }
   ((uint8_t*)&rawAccelerations.z)[1] = data[2];
   ((uint8_t*)&rawAccelerations.z)[2] = data[1];
   ((uint8_t*)&rawAccelerations.z)[3] = data[0];
