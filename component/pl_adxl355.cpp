@@ -221,29 +221,31 @@ esp_err_t Adxl355::ClearFifo() {
 
 //==============================================================================
 
-esp_err_t Adxl355::ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAccelerations) {
+esp_err_t Adxl355::ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAccelerations, TickType_t timeout) {
   LockGuard lg(*this, *spi);
   uint8_t data[3];
   rawAccelerations.x = rawAccelerations.y = rawAccelerations.z = 0;
-  
+  TickType_t startTick = xTaskGetTickCount();
+
   do {
     ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
-  } while (!(data[2] & 0x03));
-  
+  } while (!(data[2] & 0x03) && xTaskGetTickCount() - startTick < timeout);
+  ESP_RETURN_ON_FALSE(data[2] & 0x03, ESP_ERR_TIMEOUT, TAG, "timeout");
+
   if (data[2] & 0x02) {
     ESP_RETURN_ON_ERROR(ESP_FAIL, TAG, "no valid acceleration data in FIFO");
   }
-    
+
   ((uint8_t*)&rawAccelerations.x)[1] = data[2];
   ((uint8_t*)&rawAccelerations.x)[2] = data[1];
   ((uint8_t*)&rawAccelerations.x)[3] = data[0];
-  
+
   uint8_t numberOfFifoSamples;
   do {
     ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_ENTRIES, numberOfFifoSamples), TAG, "read failed");
-  }
-  while(numberOfFifoSamples < 2);
-  
+  } while (numberOfFifoSamples < 2 && xTaskGetTickCount() - startTick < timeout);
+  ESP_RETURN_ON_FALSE(numberOfFifoSamples >= 2, ESP_ERR_TIMEOUT, TAG, "timeout");
+
   ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
   ((uint8_t*)&rawAccelerations.y)[1] = data[2];
   ((uint8_t*)&rawAccelerations.y)[2] = data[1];
@@ -263,10 +265,10 @@ esp_err_t Adxl355::ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAcc
 
 //==============================================================================
 
-esp_err_t Adxl355::ReadAccelerationsFromFifo(Adxl355_Accelerations& accelerations) {
+esp_err_t Adxl355::ReadAccelerationsFromFifo(Adxl355_Accelerations& accelerations, TickType_t timeout) {
   LockGuard lg(*this, *spi);
   Adxl355_RawAccelerations rawAccelerations;
-  ESP_RETURN_ON_ERROR(ReadRawAccelerationsFromFifo(rawAccelerations), TAG, "read raw accelerations from fifo failed");
+  ESP_RETURN_ON_ERROR(ReadRawAccelerationsFromFifo(rawAccelerations, timeout), TAG, "read raw accelerations from FIFO failed");
   float scaleFactor;
   ESP_RETURN_ON_ERROR(ReadAccelerationScaleFactor(scaleFactor), TAG, "read acceleration scale factor failed");
   accelerations.x = rawAccelerations.x * scaleFactor;

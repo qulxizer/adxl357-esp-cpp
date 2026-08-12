@@ -88,13 +88,13 @@ public:
   /// @param rawAccelerations raw accelerations
   /// @param timeout timeout in FreeRTOS ticks
   /// @return error code
-  esp_err_t ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAccelerations);
-  
+  esp_err_t ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAccelerations, TickType_t timeout = portMAX_DELAY);
+
   /// @brief Reads the X-, Y- and Z-axis accelerations from the FIFO
   /// @param accelerations accelerations, g
   /// @param timeout timeout in FreeRTOS ticks
   /// @return error code
-  esp_err_t ReadAccelerationsFromFifo(Adxl355_Accelerations& accelerations);
+  esp_err_t ReadAccelerationsFromFifo(Adxl355_Accelerations& accelerations, TickType_t timeout = portMAX_DELAY);
 
   /// @brief Reads the raw X-, Y- and Z-axis acceleration offsets
   /// @param rawOffsets raw acceleration offsets

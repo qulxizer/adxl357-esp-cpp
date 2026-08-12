@@ -3,7 +3,7 @@
 
 //==============================================================================
 
-const spi_host_device_t host = HSPI_HOST;
+const spi_host_device_t host = SPI2_HOST;
 const int mosiPin = 5;
 const int misoPin = 18;
 const int sclkPin = 19;
@@ -16,6 +16,7 @@ PL::Adxl355 adxl355(spi, sclkFrequency, csPin);
 
 void TestDeviceId();
 void TestGetNumberOfFifoSamples();
+void TestReadAccelerationsFromFifo();
 void TestOffsets();
 void TestActivityDetectionAxes();
 void TestActivityThreshold();
@@ -38,6 +39,7 @@ extern "C" void app_main(void) {
 
   RUN_TEST(TestDeviceId);
   RUN_TEST(TestGetNumberOfFifoSamples);
+  RUN_TEST(TestReadAccelerationsFromFifo);
   RUN_TEST(TestOffsets);
   RUN_TEST(TestActivityDetectionAxes);
   RUN_TEST(TestActivityThreshold);
@@ -72,6 +74,25 @@ void TestGetNumberOfFifoSamples() {
   uint8_t numberOfFifoSamples;
   TEST_ASSERT(adxl355.ReadNumberOfFifoSamples(numberOfFifoSamples) == ESP_OK);
   TEST_ASSERT_EQUAL(PL::Adxl355::maxNumberOfFifoSamples, numberOfFifoSamples);
+}
+
+//==============================================================================
+
+void TestReadAccelerationsFromFifo() {
+  TEST_ASSERT(adxl355.Reset() == ESP_OK);
+  TEST_ASSERT(adxl355.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) == ESP_OK);
+  TEST_ASSERT(adxl355.EnableMeasurement() == ESP_OK);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
+
+  PL::Adxl355_RawAccelerations rawAccelerations;
+  TEST_ASSERT(adxl355.ReadRawAccelerationsFromFifo(rawAccelerations, 100 / portTICK_PERIOD_MS) == ESP_OK);
+  PL::Adxl355_Accelerations accelerations;
+  TEST_ASSERT(adxl355.ReadAccelerationsFromFifo(accelerations, 100 / portTICK_PERIOD_MS) == ESP_OK);
+
+  TEST_ASSERT(adxl355.DisableMeasurement() == ESP_OK);
+  TEST_ASSERT(adxl355.ClearFifo() == ESP_OK);
+  TEST_ASSERT(adxl355.ReadRawAccelerationsFromFifo(rawAccelerations, 100 / portTICK_PERIOD_MS) == ESP_FAIL);
+  TEST_ASSERT(adxl355.ReadAccelerationsFromFifo(accelerations, 100 / portTICK_PERIOD_MS) == ESP_FAIL);
 }
 
 //==============================================================================
