@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - SelfTest not restoring the acceleration range.
 - SelfTest not clearing the FIFO.
+- Write null check error message referring to dest instead of src.
 
 ## [1.0.0] - 2024-08-27
 Initial release.
