@@ -728,7 +728,9 @@ esp_err_t Adxl355::SelfTest(Adxl355_Accelerations& accelerations) {
   LockGuard lg(*this, *spi);
   bool measurementIsEnabled;
   ESP_RETURN_ON_ERROR(IsMeasurementEnabled(measurementIsEnabled), TAG, "is measurement enabled failed");
-  
+  Adxl355_Range range;
+  ESP_RETURN_ON_ERROR(ReadRange(range), TAG, "read range failed");
+
   Adxl355_Accelerations accelNoForce, accelForce;
 
   ESP_RETURN_ON_ERROR(SetRange(Adxl355_Range::range8g), TAG, "set range failed");
@@ -747,8 +749,10 @@ esp_err_t Adxl355::SelfTest(Adxl355_Accelerations& accelerations) {
   if (!measurementIsEnabled) {
     ESP_RETURN_ON_ERROR(DisableMeasurement(), TAG, "disable measurement failed");
   }
-  
+  ESP_RETURN_ON_ERROR(SetRange(range), TAG, "set range failed");
+
   ESP_RETURN_ON_ERROR(Write(ADXL355_REG_SELF_TEST, 0), TAG, "write failed");
+  ESP_RETURN_ON_ERROR(ClearFifo(), TAG, "clear fifo failed");
 
   accelerations.x = accelForce.x - accelNoForce.x;
   accelerations.y = accelForce.y - accelNoForce.y;

@@ -27,6 +27,7 @@ void TestInterrupts();
 void TestSynchronizationAndExternalClock();
 void TestRangeIntPolarityAndI2CSpeed();
 void TestPower();
+void TestSelfTest();
 void TestReset();
 
 //==============================================================================
@@ -50,6 +51,7 @@ extern "C" void app_main(void) {
   RUN_TEST(TestSynchronizationAndExternalClock);
   RUN_TEST(TestRangeIntPolarityAndI2CSpeed);
   RUN_TEST(TestPower);
+  RUN_TEST(TestSelfTest);
   RUN_TEST(TestReset);
   UNITY_END();
 }
@@ -303,10 +305,33 @@ void TestPower() {
         TEST_ASSERT(adxl355.IsDataReadyEnabled(dataReadySet) == ESP_OK);
         TEST_ASSERT_EQUAL(measurementToSet, (uint8_t)measurementSet);
         TEST_ASSERT_EQUAL(temperatureToSet, (uint8_t)temperatureSet);
-        TEST_ASSERT_EQUAL(dataReadyToSet, (uint8_t)dataReadySet); 
+        TEST_ASSERT_EQUAL(dataReadyToSet, (uint8_t)dataReadySet);
       }
     }
   }
+}
+
+//==============================================================================
+
+void TestSelfTest() {
+  TEST_ASSERT(adxl355.Reset() == ESP_OK);
+  TEST_ASSERT(adxl355.SetRange(PL::Adxl355_Range::range4g) == ESP_OK);
+  TEST_ASSERT(adxl355.DisableMeasurement() == ESP_OK);
+
+  PL::Adxl355_Accelerations accelerations;
+  TEST_ASSERT(adxl355.SelfTest(accelerations) == ESP_OK);
+
+  PL::Adxl355_Range rangeSet;
+  TEST_ASSERT(adxl355.ReadRange(rangeSet) == ESP_OK);
+  TEST_ASSERT_EQUAL((uint8_t)PL::Adxl355_Range::range4g, (uint8_t)rangeSet);
+
+  bool measurementIsEnabled;
+  TEST_ASSERT(adxl355.IsMeasurementEnabled(measurementIsEnabled) == ESP_OK);
+  TEST_ASSERT(!measurementIsEnabled);
+
+  uint8_t numberOfFifoSamples;
+  TEST_ASSERT(adxl355.ReadNumberOfFifoSamples(numberOfFifoSamples) == ESP_OK);
+  TEST_ASSERT_EQUAL(0, numberOfFifoSamples);
 }
 
 //==============================================================================
