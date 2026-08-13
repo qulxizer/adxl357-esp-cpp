@@ -223,44 +223,52 @@ esp_err_t Adxl355::ClearFifo() {
 
 esp_err_t Adxl355::ReadRawAccelerationsFromFifo(Adxl355_RawAccelerations& rawAccelerations, TickType_t timeout) {
   LockGuard lg(*this, *spi);
-  uint8_t data[3];
+  uint8_t data[9];
   rawAccelerations.x = rawAccelerations.y = rawAccelerations.z = 0;
   TickType_t startTick = xTaskGetTickCount();
 
-  do {
-    ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
-  } while (!(data[2] & 0x03) && xTaskGetTickCount() - startTick < timeout);
-  ESP_RETURN_ON_FALSE(data[2] & 0x03, ESP_ERR_TIMEOUT, TAG, "timeout");
+  // The FIFO has 96 locations for samples (1 sample is an acceleration for 1 axis). One measurement contains 3 samples.
+  // According to the experiments if the buffer is not full, the sequence "1) Read sample 2) Delay 3) Read sample" gives X and Y samples.
+  // But if the buffer is already full the same sequence can give 2 X samples, probably because the new measurement is written and the read pointer
+  // is shifted.
+  // Therefore reading one sample and checking that it is X does not guarantee the following samples to be Y and Z.
 
-  if (data[2] & 0x02) {
-    ESP_RETURN_ON_ERROR(ESP_FAIL, TAG, "no valid acceleration data in FIFO");
+  // Wait for the number of samples to be >= 3
+  uint8_t numberOfFifoSamples;
+  do {
+    ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_ENTRIES, numberOfFifoSamples), TAG, "read failed");
+  } while (numberOfFifoSamples < 3 && xTaskGetTickCount() - startTick < timeout);
+  ESP_RETURN_ON_FALSE(numberOfFifoSamples >= 3, ESP_ERR_TIMEOUT, TAG, "timeout");
+
+  // Read 3 samples
+  ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, data, 9), TAG, "read failed");
+
+  // If the first sample is not X (according to the least significant bits) try to shift samples and read 1 or 2 more samples
+  for (int additionalSample = 0; additionalSample < 2 && (data[2] & 0x03) != 0x01; additionalSample++) {
+    for (int i = 0; i < 3; i++) {
+      data[i] = data[i + 3];
+      data[i + 3] = data[i + 6];
+    }
+    
+    do {
+      ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_ENTRIES, numberOfFifoSamples), TAG, "read failed");
+    } while (numberOfFifoSamples < 1 && xTaskGetTickCount() - startTick < timeout);
+    ESP_RETURN_ON_FALSE(numberOfFifoSamples >= 1, ESP_ERR_TIMEOUT, TAG, "timeout");
+
+    ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, data + 6, 3), TAG, "read failed");
   }
+
+  ESP_RETURN_ON_FALSE(((data[2] & 0x03) == 0x01 && (data[5] & 0x03) == 0x00 && (data[8] & 0x03) == 0x00), ESP_ERR_INVALID_RESPONSE, TAG, "FIFO data is invalid");
 
   ((uint8_t*)&rawAccelerations.x)[1] = data[2];
   ((uint8_t*)&rawAccelerations.x)[2] = data[1];
   ((uint8_t*)&rawAccelerations.x)[3] = data[0];
-
-  uint8_t numberOfFifoSamples;
-  do {
-    ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_ENTRIES, numberOfFifoSamples), TAG, "read failed");
-  } while (numberOfFifoSamples < 2 && xTaskGetTickCount() - startTick < timeout);
-  ESP_RETURN_ON_FALSE(numberOfFifoSamples >= 2, ESP_ERR_TIMEOUT, TAG, "timeout");
-
-  ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
-  if (data[2] & 0x01) {
-    ESP_RETURN_ON_ERROR(ESP_FAIL, TAG, "no valid Y-axis acceleration data in FIFO");
-  }
-  ((uint8_t*)&rawAccelerations.y)[1] = data[2];
-  ((uint8_t*)&rawAccelerations.y)[2] = data[1];
-  ((uint8_t*)&rawAccelerations.y)[3] = data[0];
-
-  ESP_RETURN_ON_ERROR(Read(ADXL355_REG_FIFO_DATA, &data, sizeof(data)), TAG, "read failed");
-  if (data[2] & 0x01) {
-    ESP_RETURN_ON_ERROR(ESP_FAIL, TAG, "no valid Z-axis acceleration data in FIFO");
-  }
-  ((uint8_t*)&rawAccelerations.z)[1] = data[2];
-  ((uint8_t*)&rawAccelerations.z)[2] = data[1];
-  ((uint8_t*)&rawAccelerations.z)[3] = data[0];
+  ((uint8_t*)&rawAccelerations.y)[1] = data[5];
+  ((uint8_t*)&rawAccelerations.y)[2] = data[4];
+  ((uint8_t*)&rawAccelerations.y)[3] = data[3];
+  ((uint8_t*)&rawAccelerations.z)[1] = data[8];
+  ((uint8_t*)&rawAccelerations.z)[2] = data[7];
+  ((uint8_t*)&rawAccelerations.z)[3] = data[6];
   
   rawAccelerations.x /= 4096;
   rawAccelerations.y /= 4096;

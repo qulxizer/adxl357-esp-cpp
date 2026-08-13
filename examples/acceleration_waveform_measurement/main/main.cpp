@@ -2,7 +2,7 @@
 
 //==============================================================================
 
-const spi_host_device_t host = HSPI_HOST;
+const spi_host_device_t host = SPI2_HOST;
 const int mosiPin = 5;
 const int misoPin = 18;
 const int sclkPin = 19;
@@ -29,17 +29,17 @@ extern "C" void app_main(void) {
 
   while (1) {
     // Clear the FIFO
-    adxl355.ClearFifo();
     printf("FIFO cleared\n");
+    adxl355.ClearFifo();
 
-    vTaskDelay(1);
+    // Read the accelerations from the FIFO
+    PL::Adxl355_Accelerations accelerations[numberOfPoints];
+    for (int i = 0; i < numberOfPoints; i++)
+      adxl355.ReadAccelerationsFromFifo(accelerations[i]);
 
-    for (int i = 0; i < numberOfPoints; i++) {
-      // Read and print the accelerations from the FIFO
-      PL::Adxl355_Accelerations accelerations;
-      adxl355.ReadAccelerationsFromFifo(accelerations);
-      printf("Time: %f ms, Accelerations: X: %f g, Y: %f g, Z: %f g\n", i * timeStepMs, accelerations.x, accelerations.y, accelerations.z);
-    }
+    // Print the accelerations
+    for (int i = 0; i < numberOfPoints; i++)
+      printf("Time: %f ms, Accelerations: X: %f g, Y: %f g, Z: %f g\n", i * timeStepMs, accelerations[i].x, accelerations[i].y, accelerations[i].z);
     printf("\n");
 
     vTaskDelay(5000 / portTICK_PERIOD_MS);
