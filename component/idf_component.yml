@@ -1,7 +1,8 @@
 version: "1.1.1"
 license: "MIT"
-description: Analog Devices ADXL355 C++ class component for ESP-IDF
-url: https://github.com/plasmapper/adxl355-esp-cpp
+description: Analog Devices ADXL357 C++ class component for ESP-IDF
+url: https://github.com/qulxizer/adxl357-esp-cpp
 dependencies:
   idf: ">=5.3,<7.0"
   plasmapper/pl_spi: "^1.1.2"
+  plasmapper/pl_common: "^2.0.0"

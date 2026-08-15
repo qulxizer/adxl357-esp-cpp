@@ -8,8 +8,8 @@ namespace PL {
 
 //==============================================================================
 
-/// @brief ADXL355 status
-enum class Adxl355_Status : uint8_t {
+/// @brief ADXL357 status
+enum class Adxl357_Status : uint8_t {
   /// @brief a complete x-axis, y-axis, and z-axis measurement was made and results can be read
   dataReady = 0x01,
   /// @brief FIFO watermark is reached
@@ -21,13 +21,13 @@ enum class Adxl355_Status : uint8_t {
   /// @brief NVM controller is busy with a refresh, programming, or a built in self test
   nvmBusy = 0x10
 };
-Adxl355_Status operator|(Adxl355_Status status1, Adxl355_Status status2);
-Adxl355_Status operator&(Adxl355_Status status1, Adxl355_Status status2);
+Adxl357_Status operator|(Adxl357_Status status1, Adxl357_Status status2);
+Adxl357_Status operator&(Adxl357_Status status1, Adxl357_Status status2);
 
 //==============================================================================
 
-/// @brief One or multiple ADXL355 axes
-enum class Adxl355_Axes : uint8_t {
+/// @brief One or multiple ADXL357 axes
+enum class Adxl357_Axes : uint8_t {
   /// @brief no axis
   none = 0,
   /// @brief X-axis
@@ -37,13 +37,13 @@ enum class Adxl355_Axes : uint8_t {
   /// @brief Z-axis
   z = 0x04
 };
-Adxl355_Axes operator|(Adxl355_Axes axes1, Adxl355_Axes axes2);
-Adxl355_Axes operator&(Adxl355_Axes axes1, Adxl355_Axes axes2);
+Adxl357_Axes operator|(Adxl357_Axes axes1, Adxl357_Axes axes2);
+Adxl357_Axes operator&(Adxl357_Axes axes1, Adxl357_Axes axes2);
 
 //==============================================================================
 
-/// @brief ADXL355 high-pass filter frequency
-enum class Adxl355_HpfFrequency : uint8_t {
+/// @brief ADXL357 high-pass filter frequency
+enum class Adxl357_HpfFrequency : uint8_t {
   /// @brief high-pass filter disabled
   none = 0x00,
   /// @brief ODR*24.700e-4
@@ -62,8 +62,8 @@ enum class Adxl355_HpfFrequency : uint8_t {
 
 //==============================================================================
 
-/// @brief ADXL355 output data rate
-enum class Adxl355_OutputDataRate : uint8_t {
+/// @brief ADXL357 output data rate
+enum class Adxl357_OutputDataRate : uint8_t {
   /// @brief 4000 Hz (low-pass filter: 1000 Hz)
   odr4000 = 0x00,
   /// @brief 2000 Hz (low-pass filter: 500 Hz)
@@ -90,8 +90,8 @@ enum class Adxl355_OutputDataRate : uint8_t {
 
 //==============================================================================
 
-/// @brief ADXL355 interrupts
-enum class Adxl355_Interrupts : uint8_t {
+/// @brief ADXL357 interrupts
+enum class Adxl357_Interrupts : uint8_t {
   /// @brief no interrupts
   none = 0x00,
   /// @brief DATA_RDY interrupt enable on INT1
@@ -111,13 +111,13 @@ enum class Adxl355_Interrupts : uint8_t {
   /// @brief activity interrupt enable on INT2
   activityInt2 = 0x80
 };
-Adxl355_Interrupts operator|(Adxl355_Interrupts int1, Adxl355_Interrupts int2);
-Adxl355_Interrupts operator&(Adxl355_Interrupts int1, Adxl355_Interrupts int2);
+Adxl357_Interrupts operator|(Adxl357_Interrupts int1, Adxl357_Interrupts int2);
+Adxl357_Interrupts operator&(Adxl357_Interrupts int1, Adxl357_Interrupts int2);
 
 //==============================================================================
 
-/// @brief ADXL355 synchronization
-enum class Adxl355_Synchronization : uint8_t {
+/// @brief ADXL357 synchronization
+enum class Adxl357_Synchronization : uint8_t {
   /// @brief internal
   internal = 0x00,
   /// @brief external
@@ -128,8 +128,8 @@ enum class Adxl355_Synchronization : uint8_t {
 
 //==============================================================================
 
-/// @brief ADXL355 acceleration range
-enum class Adxl355_Range : uint8_t {
+/// @brief ADXL357 acceleration range
+enum class Adxl357_Range : uint8_t {
   /// @brief ±2 g
   range2g = 0x01,
   /// @brief ±4 g
@@ -140,8 +140,8 @@ enum class Adxl355_Range : uint8_t {
 
 //==============================================================================
 
-/// @brief ADXL355 interrupt polarity
-enum class Adxl355_InterruptPolarity : uint8_t {
+/// @brief ADXL357 interrupt polarity
+enum class Adxl357_InterruptPolarity : uint8_t {
   /// @brief fast
   activeLow = 0x00,
   /// @brief high-speed
@@ -150,8 +150,8 @@ enum class Adxl355_InterruptPolarity : uint8_t {
 
 //==============================================================================
 
-/// @brief ADXL355 acceleration range
-enum class Adxl355_I2CSpeed : uint8_t {
+/// @brief ADXL357 acceleration range
+enum class Adxl357_I2CSpeed : uint8_t {
   /// @brief fast
   fast = 0x00,
   /// @brief high-speed
@@ -160,8 +160,8 @@ enum class Adxl355_I2CSpeed : uint8_t {
 
 //==============================================================================
 
-/// @brief ADXL355 device information
-struct Adxl355_DeviceInfo {
+/// @brief ADXL357 device information
+struct Adxl357_DeviceInfo {
   /// @brief Vendor ID
   uint8_t vendorId;
   /// @brief Device family ID
@@ -174,8 +174,8 @@ struct Adxl355_DeviceInfo {
 
 //==============================================================================
 
-/// @brief ADXL355 raw accelerations
-struct Adxl355_RawAccelerations {
+/// @brief ADXL357 raw accelerations
+struct Adxl357_RawAccelerations {
   /// @brief Raw X-axis acceleration
   int32_t x;
   /// @brief Raw Y-axis acceleration
@@ -183,14 +183,14 @@ struct Adxl355_RawAccelerations {
   /// @brief Raw Z-axis acceleration
   int32_t z;
 
-  Adxl355_RawAccelerations();
-  Adxl355_RawAccelerations(int32_t x, int32_t y, int32_t z);
+  Adxl357_RawAccelerations();
+  Adxl357_RawAccelerations(int32_t x, int32_t y, int32_t z);
 };
 
 //==============================================================================
 
-/// @brief ADXL355 accelerations in g
-struct Adxl355_Accelerations {
+/// @brief ADXL357 accelerations in g
+struct Adxl357_Accelerations {
   /// @brief X-axis acceleration, g
   float x;
   /// @brief Y-axis acceleration, g
@@ -198,8 +198,8 @@ struct Adxl355_Accelerations {
   /// @brief Z-axis acceleration, g
   float z;
 
-  Adxl355_Accelerations();
-  Adxl355_Accelerations(float x, float y, float z); 
+  Adxl357_Accelerations();
+  Adxl357_Accelerations(float x, float y, float z); 
 };
 
 //==============================================================================

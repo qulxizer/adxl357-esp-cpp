@@ -1,7 +1,7 @@
-Analog Devices ADXL355 Component
+Analog Devices ADXL357 Component
 ================================
 
-.. |COMPONENT| replace:: adxl355
+.. |COMPONENT| replace:: adxl357
 
 .. |ESP_IDF_VERSION| replace:: 5.3
    
