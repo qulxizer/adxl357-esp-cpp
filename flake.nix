@@ -24,7 +24,7 @@
     in
     {
       devShells.${system}.default = pkgs.mkShell {
-        name = "geary";
+        name = "adxl357";
         buildInputs = with pkgs; [
           esp-idf-full
         ];
