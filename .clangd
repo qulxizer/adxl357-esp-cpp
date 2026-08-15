@@ -1,0 +1,7 @@
+CompileFlags:
+  QueryDriver:
+    - "/**/*gcc"
+    - "/**/*g++"
+    - "/**/*clang"
+  
+  Remove: [-fno-tree-switch-conversion, -fstrict-volatile-bitfields, -mlongcalls, -fno-shrink-wrap]
