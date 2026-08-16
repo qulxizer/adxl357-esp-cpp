@@ -3,11 +3,11 @@
 //==============================================================================
 
 const spi_host_device_t host = SPI2_HOST;
-const int mosiPin = 5;
-const int misoPin = 18;
-const int sclkPin = 19;
+const int mosiPin = 11;
+const int misoPin = 13;
+const int sclkPin = 12;
 const int sclkFrequency = 10000000;
-const int csPin = 21;
+const int csPin = 10;
 
 //==============================================================================
 
@@ -30,5 +30,7 @@ extern "C" void app_main(void) {
   // Execute the self-test and print the results
   PL::Adxl357_Accelerations accelerations;
   adxl357.SelfTest(accelerations);
-  printf ("Self test (should be 0.1...0.6 g, 0.1...0.6 g, 0.5...3.0 g): %f, %f, %f\n", accelerations.x, accelerations.y, accelerations.z);
+  printf("Self test (should be 0.1...0.6 g, 0.1...0.6 g, 0.5...3.0 g): %f, %f, "
+         "%f\n",
+         accelerations.x, accelerations.y, accelerations.z);
 }
