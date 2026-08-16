@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 env:
-  COMPONENT_NAME: pl_adxl355
+  COMPONENT_NAME: pl_adxl357
 
 jobs:
   upload:

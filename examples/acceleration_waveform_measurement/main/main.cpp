@@ -1,4 +1,4 @@
-#include "pl_adxl355.h"
+#include "pl_adxl357.h"
 
 //==============================================================================
 
@@ -8,8 +8,8 @@ const int misoPin = 18;
 const int sclkPin = 19;
 const int sclkFrequency = 10000000;
 const int csPin = 21;
-const auto range = PL::Adxl355_Range::range2g;
-const auto outputDataRate = PL::Adxl355_OutputDataRate::odr4000;
+const auto range = PL::Adxl357_Range::range2g;
+const auto outputDataRate = PL::Adxl357_OutputDataRate::odr4000;
 const float timeStepMs = 1.0 / 4000.0 * 1000;
 const int numberOfPoints = 10;
 
@@ -17,25 +17,25 @@ const int numberOfPoints = 10;
 
 extern "C" void app_main(void) {
   auto spi = std::make_shared<PL::Spi>(host, mosiPin, misoPin, sclkPin);
-  PL::Adxl355 adxl355(spi, sclkFrequency, csPin);
-  adxl355.Initialize();
+  PL::Adxl357 adxl357(spi, sclkFrequency, csPin);
+  adxl357.Initialize();
 
-  // Set ADXL355 range
-  adxl355.SetRange(range);
-  // Set ADXL355 output data rate
-  adxl355.SetOutputDataRate(outputDataRate);
-  // Enable ADXL355 measurement
-  adxl355.EnableMeasurement();
+  // Set ADXL357 range
+  adxl357.SetRange(range);
+  // Set ADXL357 output data rate
+  adxl357.SetOutputDataRate(outputDataRate);
+  // Enable ADXL357 measurement
+  adxl357.EnableMeasurement();
 
   while (1) {
     // Clear the FIFO
     printf("FIFO cleared\n");
-    adxl355.ClearFifo();
+    adxl357.ClearFifo();
 
     // Read the accelerations from the FIFO
-    PL::Adxl355_Accelerations accelerations[numberOfPoints];
+    PL::Adxl357_Accelerations accelerations[numberOfPoints];
     for (int i = 0; i < numberOfPoints; i++)
-      adxl355.ReadAccelerationsFromFifo(accelerations[i]);
+      adxl357.ReadAccelerationsFromFifo(accelerations[i]);
 
     // Print the accelerations
     for (int i = 0; i < numberOfPoints; i++)

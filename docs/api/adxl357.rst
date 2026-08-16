@@ -1,6 +1,6 @@
-PL::Adxl355 class
+PL::Adxl357 class
 =================
 
-.. doxygenclass:: PL::Adxl355
+.. doxygenclass:: PL::Adxl357
   :members:
   :protected-members:
