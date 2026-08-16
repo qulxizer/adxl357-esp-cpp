@@ -37,7 +37,7 @@ void TestReset();
 //==============================================================================
 
 extern "C" void app_main(void) {
-  printf("Connect ADXL355 to MOSI pin %d, MISO pin %d, SCLK pin %d and CS pin "
+  printf("Connect ADXL357 to MOSI pin %d, MISO pin %d, SCLK pin %d and CS pin "
          "%d\n",
          mosiPin, misoPin, sclkPin, csPin);
 
@@ -94,14 +94,14 @@ void TestGetNumberOfFifoSamples() {
 
 void TestReadAccelerationsFromFifo() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) ==
+  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl357_OutputDataRate::odr4000) ==
               ESP_OK);
   TEST_ASSERT(adxl357.EnableMeasurement() == ESP_OK);
 
-  PL::Adxl355_RawAccelerations rawAccelerations;
+  PL::Adxl357_RawAccelerations rawAccelerations;
   TEST_ASSERT(adxl357.ReadRawAccelerationsFromFifo(
                   rawAccelerations, 100 / portTICK_PERIOD_MS) == ESP_OK);
-  PL::Adxl355_Accelerations accelerations;
+  PL::Adxl357_Accelerations accelerations;
   TEST_ASSERT(adxl357.ReadAccelerationsFromFifo(
                   accelerations, 100 / portTICK_PERIOD_MS) == ESP_OK);
 
@@ -118,24 +118,24 @@ void TestReadAccelerationsFromFifo() {
 
 void TestStatus() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) ==
+  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl357_OutputDataRate::odr4000) ==
               ESP_OK);
   TEST_ASSERT(adxl357.EnableMeasurement() == ESP_OK);
   vTaskDelay(50 / portTICK_PERIOD_MS);
 
-  PL::Adxl355_Status status;
+  PL::Adxl357_Status status;
   TEST_ASSERT(adxl357.ReadStatus(status) == ESP_OK);
-  TEST_ASSERT((status & PL::Adxl355_Status::dataReady) ==
-              PL::Adxl355_Status::dataReady);
-  TEST_ASSERT((status & PL::Adxl355_Status::fifoFull) ==
-              PL::Adxl355_Status::fifoFull);
+  TEST_ASSERT((status & PL::Adxl357_Status::dataReady) ==
+              PL::Adxl357_Status::dataReady);
+  TEST_ASSERT((status & PL::Adxl357_Status::fifoFull) ==
+              PL::Adxl357_Status::fifoFull);
 }
 
 //==============================================================================
 
 void TestClearFifo() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) ==
+  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl357_OutputDataRate::odr4000) ==
               ESP_OK);
   TEST_ASSERT(adxl357.EnableMeasurement() == ESP_OK);
   vTaskDelay(50 / portTICK_PERIOD_MS);
@@ -154,13 +154,13 @@ void TestClearFifo() {
 
 void TestReadAccelerations() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetRange(PL::Adxl355_Range::range2g) == ESP_OK);
+  TEST_ASSERT(adxl357.SetRange(PL::Adxl357_Range::range2g) == ESP_OK);
   TEST_ASSERT(adxl357.EnableMeasurement() == ESP_OK);
   vTaskDelay(50 / portTICK_PERIOD_MS);
 
-  PL::Adxl355_RawAccelerations rawAccelerations;
+  PL::Adxl357_RawAccelerations rawAccelerations;
   TEST_ASSERT(adxl357.ReadRawAccelerations(rawAccelerations) == ESP_OK);
-  PL::Adxl355_Accelerations accelerations;
+  PL::Adxl357_Accelerations accelerations;
   TEST_ASSERT(adxl357.ReadAccelerations(accelerations) == ESP_OK);
 
   float magnitude = sqrtf(accelerations.x * accelerations.x +
@@ -189,16 +189,16 @@ void TestOffsets() {
   float scaleFactor;
   TEST_ASSERT(adxl357.ReadAccelerationScaleFactor(scaleFactor) == ESP_OK);
 
-  PL::Adxl355_RawAccelerations rawOffsetsToSet(1000, 2000, -4000);
+  PL::Adxl357_RawAccelerations rawOffsetsToSet(1000, 2000, -4000);
   TEST_ASSERT(adxl357.SetRawOffsets(rawOffsetsToSet) == ESP_OK);
 
-  PL::Adxl355_RawAccelerations rawOffsetsSet;
+  PL::Adxl357_RawAccelerations rawOffsetsSet;
   TEST_ASSERT(adxl357.ReadRawOffsets(rawOffsetsSet) == ESP_OK);
   TEST_ASSERT_INT32_WITHIN(16, rawOffsetsToSet.x, rawOffsetsSet.x);
   TEST_ASSERT_INT32_WITHIN(16, rawOffsetsToSet.y, rawOffsetsSet.y);
   TEST_ASSERT_INT32_WITHIN(16, rawOffsetsToSet.z, rawOffsetsSet.z);
 
-  PL::Adxl355_Accelerations offsetsSet;
+  PL::Adxl357_Accelerations offsetsSet;
   TEST_ASSERT(adxl357.ReadOffsets(offsetsSet) == ESP_OK);
   TEST_ASSERT_FLOAT_WITHIN(16 * scaleFactor, rawOffsetsToSet.x * scaleFactor,
                            offsetsSet.x);
@@ -207,7 +207,7 @@ void TestOffsets() {
   TEST_ASSERT_FLOAT_WITHIN(16 * scaleFactor, rawOffsetsToSet.z * scaleFactor,
                            offsetsSet.z);
 
-  PL::Adxl355_Accelerations offsetsToSet(0.1, 0.2, -0.4);
+  PL::Adxl357_Accelerations offsetsToSet(0.1, 0.2, -0.4);
   TEST_ASSERT(adxl357.SetOffsets(offsetsToSet) == ESP_OK);
 
   TEST_ASSERT(adxl357.ReadRawOffsets(rawOffsetsSet) == ESP_OK);
@@ -223,9 +223,9 @@ void TestOffsets() {
 //==============================================================================
 
 void TestActivityDetectionAxes() {
-  PL::Adxl355_Axes axesToSet = PL::Adxl355_Axes::x | PL::Adxl355_Axes::z;
+  PL::Adxl357_Axes axesToSet = PL::Adxl357_Axes::x | PL::Adxl357_Axes::z;
   TEST_ASSERT(adxl357.SetActivityDetectionAxes(axesToSet) == ESP_OK);
-  PL::Adxl355_Axes axesSet;
+  PL::Adxl357_Axes axesSet;
   TEST_ASSERT(adxl357.ReadActivityDetectionAxes(axesSet) == ESP_OK);
   TEST_ASSERT_EQUAL((uint8_t)axesToSet, (uint8_t)axesSet);
 }
@@ -273,16 +273,16 @@ void TestActivityCount() {
 
 void TestHpfFrequencyAndOutputDataRate() {
   for (uint8_t freqToSet = 0;
-       freqToSet <= (uint8_t)PL::Adxl355_HpfFrequency::hpf0_0238; freqToSet++) {
+       freqToSet <= (uint8_t)PL::Adxl357_HpfFrequency::hpf0_0238; freqToSet++) {
     for (uint8_t odrToSet = 0;
-         odrToSet <= (uint8_t)PL::Adxl355_OutputDataRate::odr3_906;
+         odrToSet <= (uint8_t)PL::Adxl357_OutputDataRate::odr3_906;
          odrToSet++) {
       TEST_ASSERT(adxl357.SetHpfFrequency(
-                      (PL::Adxl355_HpfFrequency)freqToSet) == ESP_OK);
+                      (PL::Adxl357_HpfFrequency)freqToSet) == ESP_OK);
       TEST_ASSERT(adxl357.SetOutputDataRate(
-                      (PL::Adxl355_OutputDataRate)odrToSet) == ESP_OK);
-      PL::Adxl355_HpfFrequency freqSet;
-      PL::Adxl355_OutputDataRate odrSet;
+                      (PL::Adxl357_OutputDataRate)odrToSet) == ESP_OK);
+      PL::Adxl357_HpfFrequency freqSet;
+      PL::Adxl357_OutputDataRate odrSet;
       TEST_ASSERT(adxl357.ReadHpfFrequency(freqSet) == ESP_OK);
       TEST_ASSERT(adxl357.ReadOutputDataRate(odrSet) == ESP_OK);
       TEST_ASSERT_EQUAL(freqToSet, (uint8_t)freqSet);
@@ -304,11 +304,11 @@ void TestFifoWatermark() {
 //==============================================================================
 
 void TestInterrupts() {
-  PL::Adxl355_Interrupts interruptsToSet =
-      PL::Adxl355_Interrupts::dataReadyInt1 |
-      PL::Adxl355_Interrupts::fifoFullInt2;
+  PL::Adxl357_Interrupts interruptsToSet =
+      PL::Adxl357_Interrupts::dataReadyInt1 |
+      PL::Adxl357_Interrupts::fifoFullInt2;
   TEST_ASSERT(adxl357.SetInterrupts(interruptsToSet) == ESP_OK);
-  PL::Adxl355_Interrupts interruptsSet;
+  PL::Adxl357_Interrupts interruptsSet;
   TEST_ASSERT(adxl357.ReadInterrupts(interruptsSet) == ESP_OK);
   TEST_ASSERT_EQUAL((uint8_t)interruptsToSet, (uint8_t)interruptsSet);
 }
@@ -318,18 +318,18 @@ void TestInterrupts() {
 void TestSynchronizationAndExternalClock() {
   for (uint8_t syncToSet = 0;
        syncToSet <=
-       (uint8_t)PL::Adxl355_Synchronization::externalWithInterpolation;
+       (uint8_t)PL::Adxl357_Synchronization::externalWithInterpolation;
        syncToSet++) {
     for (uint8_t extClockToSet = 0; extClockToSet <= 1; extClockToSet++) {
       TEST_ASSERT(adxl357.SetSynchronization(
-                      (PL::Adxl355_Synchronization)syncToSet) == ESP_OK);
+                      (PL::Adxl357_Synchronization)syncToSet) == ESP_OK);
       if (extClockToSet) {
         TEST_ASSERT(adxl357.EnableExternalClock() == ESP_OK);
       } else {
         TEST_ASSERT(adxl357.DisableExternalClock() == ESP_OK);
       }
       vTaskDelay(1);
-      PL::Adxl355_Synchronization syncSet;
+      PL::Adxl357_Synchronization syncSet;
       bool extClockSet;
       TEST_ASSERT(adxl357.ReadSynchronization(syncSet) == ESP_OK);
       TEST_ASSERT(adxl357.IsExternalClockEnabled(extClockSet) == ESP_OK);
@@ -343,23 +343,23 @@ void TestSynchronizationAndExternalClock() {
 
 void TestRangeIntPolarityAndI2CSpeed() {
   for (uint8_t rangeToSet = 0;
-       rangeToSet <= (uint8_t)PL::Adxl355_Range::range8g; rangeToSet++) {
+       rangeToSet <= (uint8_t)PL::Adxl357_Range::range8g; rangeToSet++) {
     for (uint8_t intPolToSet = 0;
-         intPolToSet <= (uint8_t)PL::Adxl355_InterruptPolarity::activeHigh;
+         intPolToSet <= (uint8_t)PL::Adxl357_InterruptPolarity::activeHigh;
          intPolToSet++) {
       for (uint8_t i2CSpeedToSet = 0;
-           i2CSpeedToSet <= (uint8_t)PL::Adxl355_I2CSpeed::highSpeed;
+           i2CSpeedToSet <= (uint8_t)PL::Adxl357_I2CSpeed::highSpeed;
            i2CSpeedToSet++) {
-        TEST_ASSERT(adxl357.SetRange((PL::Adxl355_Range)rangeToSet) == ESP_OK);
+        TEST_ASSERT(adxl357.SetRange((PL::Adxl357_Range)rangeToSet) == ESP_OK);
         TEST_ASSERT(adxl357.SetInterruptPolarity(
-                        (PL::Adxl355_InterruptPolarity)intPolToSet) == ESP_OK);
-        TEST_ASSERT(adxl357.SetI2CSpeed((PL::Adxl355_I2CSpeed)i2CSpeedToSet) ==
+                        (PL::Adxl357_InterruptPolarity)intPolToSet) == ESP_OK);
+        TEST_ASSERT(adxl357.SetI2CSpeed((PL::Adxl357_I2CSpeed)i2CSpeedToSet) ==
                     ESP_OK);
 
-        PL::Adxl355_Range rangeSet;
+        PL::Adxl357_Range rangeSet;
         float scaleFactorSet;
-        PL::Adxl355_InterruptPolarity intPolSet;
-        PL::Adxl355_I2CSpeed i2CSpeedSet;
+        PL::Adxl357_InterruptPolarity intPolSet;
+        PL::Adxl357_I2CSpeed i2CSpeedSet;
         TEST_ASSERT(adxl357.ReadRange(rangeSet) == ESP_OK);
         TEST_ASSERT(adxl357.ReadAccelerationScaleFactor(scaleFactorSet) ==
                     ESP_OK);
@@ -367,16 +367,16 @@ void TestRangeIntPolarityAndI2CSpeed() {
         TEST_ASSERT(adxl357.ReadI2CSpeed(i2CSpeedSet) == ESP_OK);
 
         TEST_ASSERT_EQUAL(rangeToSet, (uint8_t)rangeSet);
-        switch ((PL::Adxl355_Range)rangeToSet) {
-        case PL::Adxl355_Range::range2g:
+        switch ((PL::Adxl357_Range)rangeToSet) {
+        case PL::Adxl357_Range::range2g:
           TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange2G,
                             scaleFactorSet);
           break;
-        case PL::Adxl355_Range::range4g:
+        case PL::Adxl357_Range::range4g:
           TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange4G,
                             scaleFactorSet);
           break;
-        case PL::Adxl355_Range::range8g:
+        case PL::Adxl357_Range::range8g:
           TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange8G,
                             scaleFactorSet);
           break;
@@ -428,10 +428,10 @@ void TestPower() {
 
 void TestSelfTest() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetRange(PL::Adxl355_Range::range4g) == ESP_OK);
+  TEST_ASSERT(adxl357.SetRange(PL::Adxl357_Range::range4g) == ESP_OK);
   TEST_ASSERT(adxl357.DisableMeasurement() == ESP_OK);
 
-  PL::Adxl355_Accelerations accelerations;
+  PL::Adxl357_Accelerations accelerations;
   TEST_ASSERT(adxl357.SelfTest(accelerations) == ESP_OK);
 
   // Expected self-test output according to the datasheet: 0.1...0.6 g for X and
@@ -440,9 +440,9 @@ void TestSelfTest() {
   TEST_ASSERT_FLOAT_WITHIN(0.25, 0.35, accelerations.y);
   TEST_ASSERT_FLOAT_WITHIN(1.25, 1.75, accelerations.z);
 
-  PL::Adxl355_Range rangeSet;
+  PL::Adxl357_Range rangeSet;
   TEST_ASSERT(adxl357.ReadRange(rangeSet) == ESP_OK);
-  TEST_ASSERT_EQUAL((uint8_t)PL::Adxl355_Range::range4g, (uint8_t)rangeSet);
+  TEST_ASSERT_EQUAL((uint8_t)PL::Adxl357_Range::range4g, (uint8_t)rangeSet);
 
   bool measurementIsEnabled;
   TEST_ASSERT(adxl357.IsMeasurementEnabled(measurementIsEnabled) == ESP_OK);
@@ -457,7 +457,7 @@ void TestSelfTest() {
 
 void TestReset() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl355_OutputDataRate::odr4000) ==
+  TEST_ASSERT(adxl357.SetOutputDataRate(PL::Adxl357_OutputDataRate::odr4000) ==
               ESP_OK);
   TEST_ASSERT(adxl357.EnableMeasurement() == ESP_OK);
   vTaskDelay(50 / portTICK_PERIOD_MS);
