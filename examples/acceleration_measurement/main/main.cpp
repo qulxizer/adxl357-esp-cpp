@@ -8,7 +8,7 @@ const int misoPin = 18;
 const int sclkPin = 19;
 const int sclkFrequency = 10000000;
 const int csPin = 21;
-const auto range = PL::Adxl357_Range::range2g;
+const auto range = PL::Adxl357_Range::range10g;
 
 //==============================================================================
 

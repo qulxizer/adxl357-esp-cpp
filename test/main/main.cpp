@@ -4,11 +4,11 @@
 //==============================================================================
 
 const spi_host_device_t host = SPI2_HOST;
-const int mosiPin = 5;
-const int misoPin = 18;
-const int sclkPin = 19;
+const int mosiPin = 11;
+const int misoPin = 13;
+const int sclkPin = 12;
 const int sclkFrequency = 10000000;
-const int csPin = 21;
+const int csPin = 10;
 auto spi = std::make_shared<PL::Spi>(host, mosiPin, misoPin, sclkPin);
 PL::Adxl357 adxl357(spi, sclkFrequency, csPin);
 
@@ -154,7 +154,7 @@ void TestClearFifo() {
 
 void TestReadAccelerations() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetRange(PL::Adxl357_Range::range2g) == ESP_OK);
+  TEST_ASSERT(adxl357.SetRange(PL::Adxl357_Range::range10g) == ESP_OK);
   TEST_ASSERT(adxl357.EnableMeasurement() == ESP_OK);
   vTaskDelay(50 / portTICK_PERIOD_MS);
 
@@ -343,7 +343,7 @@ void TestSynchronizationAndExternalClock() {
 
 void TestRangeIntPolarityAndI2CSpeed() {
   for (uint8_t rangeToSet = 0;
-       rangeToSet <= (uint8_t)PL::Adxl357_Range::range8g; rangeToSet++) {
+       rangeToSet <= (uint8_t)PL::Adxl357_Range::range40g; rangeToSet++) {
     for (uint8_t intPolToSet = 0;
          intPolToSet <= (uint8_t)PL::Adxl357_InterruptPolarity::activeHigh;
          intPolToSet++) {
@@ -368,16 +368,16 @@ void TestRangeIntPolarityAndI2CSpeed() {
 
         TEST_ASSERT_EQUAL(rangeToSet, (uint8_t)rangeSet);
         switch ((PL::Adxl357_Range)rangeToSet) {
-        case PL::Adxl357_Range::range2g:
-          TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange2G,
+        case PL::Adxl357_Range::range10g:
+          TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange10G,
                             scaleFactorSet);
           break;
-        case PL::Adxl357_Range::range4g:
-          TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange4G,
+        case PL::Adxl357_Range::range20g:
+          TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange20G,
                             scaleFactorSet);
           break;
-        case PL::Adxl357_Range::range8g:
-          TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange8G,
+        case PL::Adxl357_Range::range40g:
+          TEST_ASSERT_EQUAL(PL::Adxl357::accelerationScaleFactorRange40G,
                             scaleFactorSet);
           break;
         }
@@ -428,21 +428,22 @@ void TestPower() {
 
 void TestSelfTest() {
   TEST_ASSERT(adxl357.Reset() == ESP_OK);
-  TEST_ASSERT(adxl357.SetRange(PL::Adxl357_Range::range4g) == ESP_OK);
+  TEST_ASSERT(adxl357.SetRange(PL::Adxl357_Range::range10g) == ESP_OK);
   TEST_ASSERT(adxl357.DisableMeasurement() == ESP_OK);
 
   PL::Adxl357_Accelerations accelerations;
   TEST_ASSERT(adxl357.SelfTest(accelerations) == ESP_OK);
 
-  // Expected self-test output according to the datasheet: 0.1...0.6 g for X and
-  // Y, 0.5...3.0 g for Z
-  TEST_ASSERT_FLOAT_WITHIN(0.25, 0.35, accelerations.x);
-  TEST_ASSERT_FLOAT_WITHIN(0.25, 0.35, accelerations.y);
+  // Expected self-test output according to the datasheet: only the Z-axis is
+  // specified (0.5...3.0 g, typical 1.25 g). The X- and Y-axes are not
+  // specified, so only check that a self-test response is present.
+  TEST_ASSERT(accelerations.x > 0);
+  TEST_ASSERT(accelerations.y > 0);
   TEST_ASSERT_FLOAT_WITHIN(1.25, 1.75, accelerations.z);
 
   PL::Adxl357_Range rangeSet;
   TEST_ASSERT(adxl357.ReadRange(rangeSet) == ESP_OK);
-  TEST_ASSERT_EQUAL((uint8_t)PL::Adxl357_Range::range4g, (uint8_t)rangeSet);
+  TEST_ASSERT_EQUAL((uint8_t)PL::Adxl357_Range::range10g, (uint8_t)rangeSet);
 
   bool measurementIsEnabled;
   TEST_ASSERT(adxl357.IsMeasurementEnabled(measurementIsEnabled) == ESP_OK);

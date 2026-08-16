@@ -20,12 +20,12 @@ public:
   static constexpr float temperatureInterceptDegC = 25;
   /// @brief Temperature slope, LSB/°C
   static constexpr float temperatureSlope = -9.05;
-  /// @brief Acceleration scale factor for ±2 g range, g/LSB
-  static constexpr float accelerationScaleFactorRange2G = 3.9e-6;
-  /// @brief Acceleration scale factor for ±4 g range, g/LSB
-  static constexpr float accelerationScaleFactorRange4G = 7.8e-6;
-  /// @brief Acceleration scale factor for ±8 g range, g/LSB
-  static constexpr float accelerationScaleFactorRange8G = 15.6e-6;
+  /// @brief Acceleration scale factor for ±10 g range, g/LSB
+  static constexpr float accelerationScaleFactorRange10G = 19.5e-6;
+  /// @brief Acceleration scale factor for ±20 g range, g/LSB
+  static constexpr float accelerationScaleFactorRange20G = 39.0e-6;
+  /// @brief Acceleration scale factor for ±40 g range, g/LSB
+  static constexpr float accelerationScaleFactorRange40G = 78.0e-6;
   /// @brief Maximum number of the FIFO samples
   static constexpr uint8_t maxNumberOfFifoSamples = 96;
 
@@ -303,8 +303,8 @@ public:
   esp_err_t IsDataReadyEnabled(bool &isEnabled);
 
   /// @brief Performs the self-test of the device
-  /// @param accelerations X-, Y- and Z-axis test accelerations (should be X:
-  /// 0.1...0.6 g, Y: 0.1...0.6 g, Z: 0.5...3.0 g)
+  /// @param accelerations X-, Y- and Z-axis test accelerations (Z-axis should
+  /// be 0.5...3.0 g, typical 1.25 g)
   /// @return error code
   esp_err_t SelfTest(Adxl357_Accelerations &accelerations);
 

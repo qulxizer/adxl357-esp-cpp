@@ -130,12 +130,12 @@ enum class Adxl357_Synchronization : uint8_t {
 
 /// @brief ADXL357 acceleration range
 enum class Adxl357_Range : uint8_t {
-  /// @brief ±2 g
-  range2g = 0x01,
-  /// @brief ±4 g
-  range4g = 0x02,
-  /// @brief ±8 g
-  range8g = 0x03
+  /// @brief ±10 g
+  range10g = 0x01,
+  /// @brief ±20 g
+  range20g = 0x02,
+  /// @brief ±40 g
+  range40g = 0x03
 };
 
 //==============================================================================

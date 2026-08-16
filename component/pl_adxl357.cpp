@@ -67,9 +67,9 @@ const uint8_t ADXL357_REG_SYNC_SYNC_MAP = 0x03;
 const uint8_t ADXL357_REG_SYNC_EXT_CLK = 0x04;
 
 const uint8_t ADXL357_REG_RANGE_RANGE_MASK = 0x03;
-const uint8_t ADXL357_REG_RANGE_RANGE_PM2G = 0x01;
-const uint8_t ADXL357_REG_RANGE_RANGE_PM4G = 0x02;
-const uint8_t ADXL357_REG_RANGE_RANGE_PM8G = 0x03;
+const uint8_t ADXL357_REG_RANGE_RANGE_PM10G = 0x01;
+const uint8_t ADXL357_REG_RANGE_RANGE_PM20G = 0x02;
+const uint8_t ADXL357_REG_RANGE_RANGE_PM40G = 0x03;
 const uint8_t ADXL357_REG_RANGE_INT_POL_SHIFT = 6;
 const uint8_t ADXL357_REG_RANGE_INT_POL_MASK = 0x40;
 const uint8_t ADXL357_REG_RANGE_I2C_HS_SHIFT = 7;
@@ -658,14 +658,14 @@ esp_err_t Adxl357::ReadAccelerationScaleFactor(float &accelerationScaleFactor) {
   ESP_RETURN_ON_ERROR(ReadRange(range), TAG, "read range failed");
 
   switch (range) {
-  case Adxl357_Range::range2g:
-    accelerationScaleFactor = accelerationScaleFactorRange2G;
+  case Adxl357_Range::range10g:
+    accelerationScaleFactor = accelerationScaleFactorRange10G;
     break;
-  case Adxl357_Range::range4g:
-    accelerationScaleFactor = accelerationScaleFactorRange4G;
+  case Adxl357_Range::range20g:
+    accelerationScaleFactor = accelerationScaleFactorRange20G;
     break;
-  case Adxl357_Range::range8g:
-    accelerationScaleFactor = accelerationScaleFactorRange8G;
+  case Adxl357_Range::range40g:
+    accelerationScaleFactor = accelerationScaleFactorRange40G;
     break;
   default:
     accelerationScaleFactor = 1;
@@ -854,7 +854,7 @@ esp_err_t Adxl357::SelfTest(Adxl357_Accelerations &accelerations) {
 
   Adxl357_Accelerations accelNoForce, accelForce;
 
-  ESP_RETURN_ON_ERROR(SetRange(Adxl357_Range::range8g), TAG,
+  ESP_RETURN_ON_ERROR(SetRange(Adxl357_Range::range40g), TAG,
                       "set range failed");
   ESP_RETURN_ON_ERROR(DisableMeasurement(), TAG, "disable measurement failed");
 

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- ADXL357 acceleration ranges and scale factors (±10 g, ±20 g, ±40 g with 19.5, 39 and 78 µg/LSB).
+- Self-test documentation for the ADXL357 Z-axis output.
+- Self-test test validating only the specified Z-axis output (0.5...3.0 g).
+
 ## [1.1.1] - 2026-08-13
 ### Fixed
 - FIFO reading algorithm.

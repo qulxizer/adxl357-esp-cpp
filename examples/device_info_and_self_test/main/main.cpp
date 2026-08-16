@@ -30,7 +30,7 @@ extern "C" void app_main(void) {
   // Execute the self-test and print the results
   PL::Adxl357_Accelerations accelerations;
   adxl357.SelfTest(accelerations);
-  printf("Self test (should be 0.1...0.6 g, 0.1...0.6 g, 0.5...3.0 g): %f, %f, "
-         "%f\n",
+  printf("Self test (should be 0.5...3.0 g for Z-axis, typical 1.25 g): %f, "
+         "%f, %f\n",
          accelerations.x, accelerations.y, accelerations.z);
 }
