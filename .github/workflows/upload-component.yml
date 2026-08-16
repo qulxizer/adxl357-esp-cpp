@@ -29,4 +29,4 @@ jobs:
         uses: espressif/upload-components-ci-action@v2
         with:
           components: "${{env.COMPONENT_NAME}}"
-          namespace: "plasmapper"
+          namespace: "qulxizer"
