@@ -3,11 +3,11 @@
 //==============================================================================
 
 const spi_host_device_t host = SPI2_HOST;
-const int mosiPin = 5;
-const int misoPin = 18;
-const int sclkPin = 19;
+const int mosiPin = 11;
+const int misoPin = 13;
+const int sclkPin = 12;
 const int sclkFrequency = 10000000;
-const int csPin = 21;
+const int csPin = 10;
 const auto range = PL::Adxl357_Range::range10g;
 const auto outputDataRate = PL::Adxl357_OutputDataRate::odr4000;
 const float timeStepMs = 1.0 / 4000.0 * 1000;
